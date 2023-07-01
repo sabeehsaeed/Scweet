@@ -60,6 +60,8 @@ def get_tweet_likers(username, id, headless, credentials, verbose=1, wait=2, lim
     wait = 0.5
     wait_margin = 0.1
 
+    scrolled_count = 0
+
     print("Crawling ")
     while scrolling and not is_limit:
         # get the card of following or followers
@@ -93,9 +95,10 @@ def get_tweet_likers(username, id, headless, credentials, verbose=1, wait=2, lim
 
         print("Found " + str(len(likers_elem)) + " " + "liking users")
 
-        yield likers_elem, likers_ids
+        yield likers_elem, likers_ids, scrolled_count
         likers_elem = []
         likers_ids = set()
+        scrolled_count += 1
         
         scroll_attempt = 0
         while not is_limit:
@@ -138,8 +141,8 @@ def get_tweet_likers(username, id, headless, credentials, verbose=1, wait=2, lim
 
 
 def scrape_liking_users(username, tweet_id, credentials, verbose=1, headless=True, wait=2, limit=float('inf'), file_path=None):
-    for likers_elem, likers_ids in get_tweet_likers(username, tweet_id, headless, credentials, verbose, wait=wait, limit=limit):
-        yield likers_elem, likers_ids
+    for likers_elem, likers_ids, scrolled_count in get_tweet_likers(username, tweet_id, headless, credentials, verbose, wait=wait, limit=limit):
+        yield likers_elem, likers_ids, scrolled_count
 
     # if file_path == None:
     #     file_path = 'outputs/' + str(users[0]) + '_' + str(users[-1]) + '_' + 'followers.json'
