@@ -37,7 +37,11 @@ env_path = ".env"
 username = "JohnFetterman"
 tweet_id = "1590221958536646657" 
 
-liking_users = scrape_liking_users(username, tweet_id, env=env_path, verbose=0, headless=True, wait=3, limit=50000, file_path=None)
+credentials = {"email":"ssabeeh7@gmail.com", "password":"zxcv.123", "username":'ssabeeh7'}
+
+for idx, (likers_elem, likers_ids) in enumerate(scrape_liking_users(username, tweet_id, credentials=credentials, verbose=0, headless=True, wait=3, limit=50000, file_path=None)):
+    print(f"printing_result_of_yield_{idx}")
+    print(likers_ids)
 
 # following = get_users_following(users=users, env=env_path, verbose=0, headless=True, wait=2, limit=50, file_path=None)
 

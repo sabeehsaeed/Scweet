@@ -121,7 +121,7 @@ def get_data(card, save_images=False, save_dir=None):
     return tweet
 
 
-def init_driver(headless=True, proxy=None, show_images=False, option=None, firefox=False, env=None):
+def init_driver(headless=True, proxy=None, show_images=False, option=None, firefox=False):
     """ initiate a chromedriver or firefoxdriver instance
         --option : other option to add (str)
     """
@@ -234,10 +234,10 @@ def get_last_date_from_csv(path):
     return datetime.datetime.strftime(max(pd.to_datetime(df["Timestamp"])), '%Y-%m-%dT%H:%M:%S.000Z')
 
 
-def log_in(driver, env, timeout=20, wait=4):
-    email = get_email(env)  # const.EMAIL
-    password = get_password(env)  # const.PASSWORD
-    username = get_username(env)  # const.USERNAME
+def log_in(driver, credentials, timeout=20, wait=4):
+    email = credentials['email']#get_email(env)  # const.EMAIL
+    password = credentials['password']#get_password(env)  # const.PASSWORD
+    username = credentials['username']#get_username(env)  # const.USERNAME
 
     print("Getting website")
 

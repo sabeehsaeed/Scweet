@@ -14,17 +14,17 @@ def log_user_page(user, driver, headless=True):
     sleep(random.uniform(1, 2))
 
 
-def get_tweet_likers(username, id, headless, env, verbose=1, wait=2, limit=float('inf')):
+def get_tweet_likers(username, id, headless, credentials, verbose=1, wait=2, limit=float('inf')):
     """ get the following or followers of a list of users """
 
     # initiate the driver
     print("Initializing Driver")
-    driver = init_driver(headless=headless, env=env, firefox=True, option=["--window-position=0,0", "--window-size=1024,768"])
+    driver = init_driver(headless=headless, firefox=True, option=["--window-position=0,0", "--window-size=1024,768"])
     sleep(wait)
     # log in (the .env file should contain the username and password)
     # driver.get('https://www.twitter.com/login')
     print("Logging in")
-    log_in(driver, env, wait=wait)
+    log_in(driver, credentials, wait=wait)
     sleep(wait)
     # followers and following dict of each user
 
@@ -36,13 +36,13 @@ def get_tweet_likers(username, id, headless, env, verbose=1, wait=2, limit=float
         driver.execute_script("arguments[0].click();", login)
         sleep(random.uniform(wait - 0.5, wait + 0.5))
         sleep(wait)
-        log_in(driver, env)
+        log_in(driver)
         sleep(wait)
     # case 2
     if check_exists_by_xpath('//input[@name="session[username_or_email]"]', driver):
         print("Login failed. Retry...")
         sleep(wait)
-        log_in(driver, env)
+        log_in(driver)
         sleep(wait)
     print(f"Going to likes for {username} - {id}")
     driver.get('https://twitter.com/' + username + '/status/' + id +"/likes")
@@ -90,7 +90,13 @@ def get_tweet_likers(username, id, headless, env, verbose=1, wait=2, limit=float
                 break
             if verbose:
                 print(liker_elem)
+
         print("Found " + str(len(likers_elem)) + " " + "liking users")
+
+        yield likers_elem, likers_ids
+        likers_elem = []
+        likers_ids = set()
+        
         scroll_attempt = 0
         while not is_limit:
             sleep(random.uniform(wait - wait_margin, wait + wait_margin))
@@ -128,11 +134,12 @@ def get_tweet_likers(username, id, headless, env, verbose=1, wait=2, limit=float
                 last_position = curr_position
                 break
 
-    return likers_ids
+    # return likers_ids
 
 
-def scrape_liking_users(username, tweet_id, env, verbose=1, headless=True, wait=2, limit=float('inf'), file_path=None):
-    followers = get_tweet_likers(username, tweet_id, headless, env, verbose, wait=wait, limit=limit)
+def scrape_liking_users(username, tweet_id, credentials, verbose=1, headless=True, wait=2, limit=float('inf'), file_path=None):
+    for likers_elem, likers_ids in get_tweet_likers(username, tweet_id, headless, credentials, verbose, wait=wait, limit=limit):
+        yield likers_elem, likers_ids
 
     # if file_path == None:
     #     file_path = 'outputs/' + str(users[0]) + '_' + str(users[-1]) + '_' + 'followers.json'
@@ -141,7 +148,7 @@ def scrape_liking_users(username, tweet_id, env, verbose=1, headless=True, wait=
     # with open(file_path, 'w') as f:
     #     json.dump(followers, f)
     #     print(f"file saved in {file_path}")
-    return followers
+    # return followers
 
 
 
