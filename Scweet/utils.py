@@ -20,6 +20,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from . import const
 import urllib
+from selenium.webdriver.common.action_chains import ActionChains
+from HLISA.hlisa_action_chains import HLISA_ActionChains
 
 from .const import get_username, get_password, get_email
 
@@ -145,7 +147,8 @@ def init_driver(headless=True, proxy=None, show_images=False, option=None, firef
         prefs = {"profile.managed_default_content_settings.images": 2}
         options.add_experimental_option("prefs", prefs)
     if option is not None:
-        options.add_argument(option)
+        for single_option in option:
+            options.add_argument(single_option)
 
     if firefox:
         driver = webdriver.Firefox(options=options, executable_path=driver_path)
@@ -236,6 +239,8 @@ def log_in(driver, env, timeout=20, wait=4):
     password = get_password(env)  # const.PASSWORD
     username = get_username(env)  # const.USERNAME
 
+    print("Getting website")
+
     driver.get('https://twitter.com/i/flow/login')
 
     email_xpath = '//input[@autocomplete="username"]'
@@ -243,27 +248,46 @@ def log_in(driver, env, timeout=20, wait=4):
     username_xpath = '//input[@data-testid="ocfEnterTextTextInput"]'
 
     sleep(random.uniform(wait, wait + 1))
+    sleep(wait + 5)
 
     # enter email
     email_el = driver.find_element(by=By.XPATH, value=email_xpath)
-    sleep(random.uniform(wait, wait + 1))
-    email_el.send_keys(email)
-    sleep(random.uniform(wait, wait + 1))
-    email_el.send_keys(Keys.RETURN)
+    
+    actions = HLISA_ActionChains(driver)
+    actions.move_to_element(email_el).perform()
+    # sleep(random.uniform(wait, wait + 1))
+    actions.click(email_el).perform()
+    actions.click(email_el).perform()
+
+    print("Entering Email")
+    actions.send_keys(email, email_el).perform()
+    # email_el.send_keys(email)
+    # sleep(random.uniform(wait, wait + 1))
+    # sleep(random.uniform(wait, wait + 1))
+    actions.send_keys(Keys.RETURN, email_el).perform()
+    # email_el.send_keys(Keys.RETURN)
     sleep(random.uniform(wait, wait + 1))
     # in case twitter spotted unusual login activity : enter your username
     if check_exists_by_xpath(username_xpath, driver):
         username_el = driver.find_element(by=By.XPATH, value=username_xpath)
-        sleep(random.uniform(wait, wait + 1))
-        username_el.send_keys(username)
-        sleep(random.uniform(wait, wait + 1))
-        username_el.send_keys(Keys.RETURN)
+        # sleep(random.uniform(wait, wait + 1))
+        # username_el.send_keys(username)
+        print("Entering Suspicious Activity username")
+
+        actions.send_keys(username, username_el).perform()
+        # sleep(random.uniform(wait, wait + 1))
+        # username_el.send_keys(Keys.RETURN)
+        actions.send_keys(Keys.RETURN, username_el).perform()
         sleep(random.uniform(wait, wait + 1))
     # enter password
     password_el = driver.find_element(by=By.XPATH, value=password_xpath)
-    password_el.send_keys(password)
-    sleep(random.uniform(wait, wait + 1))
-    password_el.send_keys(Keys.RETURN)
+    # password_el.send_keys(password)
+
+    print("Entering Password")
+    actions.send_keys(password, password_el).perform()
+    # sleep(random.uniform(wait, wait + 1))
+    # password_el.send_keys(Keys.RETURN)
+    actions.send_keys(Keys.RETURN, password_el).perform()
     sleep(random.uniform(wait, wait + 1))
 
 

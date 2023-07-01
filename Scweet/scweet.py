@@ -142,6 +142,7 @@ def scrape(since, until=None, words=None, to_account=None, from_account=None, me
 
     return data
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Scrape tweets.')
 
